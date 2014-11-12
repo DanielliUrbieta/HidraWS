@@ -5,6 +5,7 @@ import hidra.model.Hidra;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -13,10 +14,13 @@ import javax.jws.WebService;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
@@ -161,7 +165,8 @@ public class HidraControl implements IHidra {
 
 	@WebMethod
 	@Override
-	public void clone(@WebParam(name = "remotePath")String remotePath, @WebParam(name="localPath")String localPath) {
+	public void clone(@WebParam(name = "remotePath") String remotePath,
+			@WebParam(name = "localPath") String localPath) {
 		File file = new File(localPath);
 		try {
 			Git.cloneRepository().setURI(remotePath).setDirectory(file).call();
@@ -190,28 +195,32 @@ public class HidraControl implements IHidra {
 
 	@WebMethod
 	@Override
-	public void status() {
+	public String status() {
 		if (hidra.equals(null))
 			System.err.println("Repositorio nao inicializado");
 		else {
 			try {
 				hidra.setStatus(hidra.getGit().status().call());
-				System.out.println("Added: "
+				String showStatus = "Added: "
 						+ this.hidra.getStatus().getAdded() + "\nChanged"
-						+ this.hidra.getStatus().getChanged() + "\nConflicting: "
+						+ this.hidra.getStatus().getChanged()
+						+ "\nConflicting: "
 						+ this.hidra.getStatus().getConflicting()
 						+ "\nConflictingStageState: "
 						+ this.hidra.getStatus().getConflictingStageState()
 						+ "\nIgnoredNotInIndex: "
-						+ this.hidra.getStatus().getIgnoredNotInIndex() + "\nMissing: "
-						+ this.hidra.getStatus().getMissing() + "\nModified: "
-						+ this.hidra.getStatus().getModified() + "\nRemoved: "
-						+ this.hidra.getStatus().getRemoved() + "\nUntracked: "
+						+ this.hidra.getStatus().getIgnoredNotInIndex()
+						+ "\nMissing: " + this.hidra.getStatus().getMissing()
+						+ "\nModified: " + this.hidra.getStatus().getModified()
+						+ "\nRemoved: " + this.hidra.getStatus().getRemoved()
+						+ "\nUntracked: "
 						+ this.hidra.getStatus().getUntracked()
 						+ "\nUntrackedFolders: "
 						+ this.hidra.getStatus().getUntrackedFolders()
 						+ "\nUncommitted Changes"
-						+ this.hidra.getStatus().getUncommittedChanges());
+						+ this.hidra.getStatus().getUncommittedChanges();
+
+				return showStatus;
 			} catch (NoWorkTreeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -220,15 +229,16 @@ public class HidraControl implements IHidra {
 				e.printStackTrace();
 			}
 		}
+		return null;
 	}
 
 	@Override
-	public void getLogs() {
-		if(hidra.equals(null)){
+	public String getLogs() {
+		String logs = null;
+		if (hidra.equals(null)) {
 			System.err.println("Repositorio nao inicializado");
-		}
-		else{
-			
+		} else {
+
 			// Repository repository1 = git1.getRepository();
 			//ObjectId head = repository1.resolve("HEAD"); //$NON-NLS-1$
 			Iterable<RevCommit> log = null;
@@ -249,12 +259,83 @@ public class HidraControl implements IHidra {
 				// Object element = itr.next();
 				RevCommit rev = (RevCommit) itr.next();
 				// System.out.println(element);
-				System.out.println("Author: " + rev.getAuthorIdent().getName()); //$NON-NLS-1$
-				System.out.println("Message: " + rev.getFullMessage()); //$NON-NLS-1$
-				System.out.println();
+				logs = "Author: " + rev.getAuthorIdent().getName()
+						+ "\nMessage: " + rev.getFullMessage();
+				/*
+				 * System.out.println("Author: " +
+				 * rev.getAuthorIdent().getName()); //$NON-NLS-1$
+				 * System.out.println("Message: " + rev.getFullMessage());
+				 * //$NON-NLS-1$ System.out.println();
+				 */
+				return logs;
 			}
 
 		}
-		
+		return logs;
+	}
+
+	@WebMethod
+	public String showBranch() {
+		String branches = null;
+		if (hidra.equals(null)) {
+			System.err.println("Repositorio nao inicializado");
+		} else {
+			List<org.eclipse.jgit.lib.Ref> call = null;
+			try {
+				call = new Git(hidra.getGit().getRepository()).branchList().call();
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// repensar mostrar ou não o id do branch
+			for (org.eclipse.jgit.lib.Ref ref : call) {
+				branches = "Branch: "  + ref.getName(); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		hidra.getGit().getRepository().close();
+		return branches;
+	}
+	
+	@WebMethod
+	public String createBranch(@WebParam(name = "nameBranch")String nameBranch){
+		String branch = null;
+		if (hidra.equals(null)) {
+			System.err.println("Repositorio nao inicializado");
+		} else {
+			try {
+				hidra.getGit().branchCreate().setName(nameBranch).call();
+
+			} catch (RefAlreadyExistsException e1) {
+
+				e1.printStackTrace();
+			} catch (RefNotFoundException e1) {
+
+				e1.printStackTrace();
+			} catch (InvalidRefNameException e1) {
+
+				e1.printStackTrace();
+			} catch (GitAPIException e1) {
+
+				e1.printStackTrace();
+			}
+
+			List<org.eclipse.jgit.lib.Ref> call = null;
+			try {
+				call = new Git(hidra.getGit().getRepository()).branchList().call();
+			} catch (GitAPIException e) {
+
+				e.printStackTrace();
+			}
+
+			for (org.eclipse.jgit.lib.Ref ref : call) {
+				branch = "Branch Created: " + " " + ref.getName(); //$NON-NLS-1$ //$NON-NLS-2$
+
+			}
+			hidra.getGit().getRepository().close();
+			
+			return branch;
+		}
+		return branch;
 	}
 }

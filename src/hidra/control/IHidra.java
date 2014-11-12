@@ -22,9 +22,17 @@ public interface IHidra {
 	public void clone(@WebParam(name="remotePath")String remotePath, @WebParam(name="localPath")String localPath);
 	
 	@WebMethod
-	public void status();
+	public String status();
 	
 	@WebMethod
-	public void getLogs();
+	public String getLogs();
 	
-}
+	@WebMethod
+	public String showBranch();
+	
+	@WebMethod
+	public String createBranch(@WebParam(name = "nameBranch")String nameBranch);
+	
+/*	@WebMethod
+	public void deleteBranch(@WebParam(name = "nameBranchD")String nameBranch);
+*/}
