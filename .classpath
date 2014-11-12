@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.jboss.ide.eclipse.as.core.server.runtime.runtimeTarget/JBoss 7.1 Runtime">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="/home/danielli/Downloads/JavaEWAH-0.7.9.jar"/>
+	<classpathentry kind="lib" path="/opt/eclipse/plugins/com.jcraft.jsch_0.1.50.v201310081430.jar" sourcepath="/opt/eclipse/plugins/com.jcraft.jsch_0.1.50.v201310081430.jar">
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/jcraft/jsch/*"/>
+			<accessrule kind="discouraged" pattern="com/jcraft/jsch/jce/*"/>
+			<accessrule kind="discouraged" pattern="com/jcraft/jsch/jcraft/*"/>
+			<accessrule kind="discouraged" pattern="com/jcraft/jsch/jgss/*"/>
+			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
