@@ -1,8 +1,14 @@
 package hidra.control;
 
+import java.io.IOException;
+
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 
 @WebService
 public interface IHidra {
@@ -19,7 +25,7 @@ public interface IHidra {
 	public boolean commit(@WebParam(name = "message")String message);
 	
 	@WebMethod
-	public void clone(@WebParam(name="remotePath")String remotePath, @WebParam(name="localPath")String localPath);
+	public boolean cloneW(@WebParam(name="remotePath")String remotePath, @WebParam(name="localPath")String localPath) throws IOException, InvalidRemoteException, TransportException, GitAPIException;
 	
 	@WebMethod
 	public String status();

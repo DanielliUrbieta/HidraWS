@@ -1,10 +1,16 @@
 package hidra.control;
 
+import java.io.IOException;
+
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+
 
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InvalidRemoteException, TransportException, IOException, GitAPIException {
 
 		HidraControl hc = new HidraControl();
 		//hc.inicializar("/home/danielli/teste01");
@@ -12,7 +18,7 @@ public class Main {
 		//hc.adicionar("arquivo5.txt");
 		//hc.remove("arquivo5.txt");
 		//hc.commit("Testando Commit");
-		//hc.clone("/home/danielli/teste01","/home/danielli/clone01");
+		hc.cloneW("/home/danielli/teste01","/home/danielli/clone01");
 		//String teste = hc.status();
 		//System.out.println(teste);
 		

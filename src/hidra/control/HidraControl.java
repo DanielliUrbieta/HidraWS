@@ -162,36 +162,77 @@ public class HidraControl implements IHidra {
 
 		return false;
 	}
-
-	@WebMethod
+	
+	
 	@Override
-	public void clone(@WebParam(name = "remotePath") String remotePath,
-			@WebParam(name = "localPath") String localPath) {
-		File file = new File(localPath);
-		try {
-			Git.cloneRepository().setURI(remotePath).setDirectory(file).call();
-			hidra = new Hidra();
-			hidra.setRemotePath(remotePath);
-			hidra.setLocalPath(localPath);
+	@WebMethod
+	public boolean cloneW(@WebParam(name="remotePath")String remotePath, @WebParam(name="localPath")String localPath) throws IOException,
+		InvalidRemoteException, TransportException, GitAPIException {
+	// prepare a new folder for the cloned repository
+	// File localPath = File.createTempFile("TestGitRepository", "");
+	// Depot depot = new Depot();
+	// DepotControl control = new DepotControl();
 
-		} catch (InvalidRemoteException e) {
-			System.err.println("URL invalida " + e);
-			e.printStackTrace();
-		} catch (TransportException e) {
-			e.printStackTrace();
-		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		FileRepositoryBuilder builder = new FileRepositoryBuilder();
-		try {
-			builder.setGitDir(file).readEnvironment().findGitDir().build();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	// depot.setLocalPath("/home/danielli/testGitClone");
+	File directory = new File(localPath);
+	directory.delete();
 
+	// then clone
+	System.out.println("Cloning from " + remotePath + " to " + directory);
+	if (directory.exists() && directory.listFiles().length != 0) {
+		System.out.println("Repositorio nao vazio, operacao cancelada");
+		return false;
+	} else {
+		Git result = Git.cloneRepository().setURI(remotePath)
+				.setDirectory(directory).call();
+
+		try {
+			// Note: the call() returns an opened repository already which
+			// needs to be closed to avoid file handle leaks!
+			System.out.println("Having repository: "
+					+ result.getRepository().getDirectory());
+		} finally {
+			result.close();
+		}
+		return true;
 	}
+}
+		
+		/*
+		String REMOTE_URL = "https://github.com/DanielliUrbieta/souzaUrbieta.git";
+		File localPath = new File("/home/danielli/testGitClone");
+		localPath.delete();
+
+		// then clone
+		System.out.println("Cloning from " + REMOTE_URL + " to " + localPath);
+		if (localPath.exists() && localPath.listFiles().length != 0) {
+			System.out.println("Repositorio nao vazio, operacao cancelada");
+		} else {
+			Git result = null;
+			try {
+				result = Git.cloneRepository().setURI(REMOTE_URL)
+						.setDirectory(localPath).call();
+			} catch (InvalidRemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				// Note: the call() returns an opened repository already which
+				// needs to be closed to avoid file handle leaks!
+				System.out.println("Having repository: "
+						+ result.getRepository().getDirectory());
+			} finally {
+				result.close();
+			}
+		}
+*/	
 
 	@WebMethod
 	@Override
@@ -282,7 +323,8 @@ public class HidraControl implements IHidra {
 		} else {
 			List<org.eclipse.jgit.lib.Ref> call = null;
 			try {
-				call = new Git(hidra.getGit().getRepository()).branchList().call();
+				call = new Git(hidra.getGit().getRepository()).branchList()
+						.call();
 			} catch (GitAPIException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -290,15 +332,15 @@ public class HidraControl implements IHidra {
 
 			// repensar mostrar ou não o id do branch
 			for (org.eclipse.jgit.lib.Ref ref : call) {
-				branches = "Branch: "  + ref.getName(); //$NON-NLS-1$ //$NON-NLS-2$
+				branches = "Branch: " + ref.getName(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		hidra.getGit().getRepository().close();
 		return branches;
 	}
-	
+
 	@WebMethod
-	public String createBranch(@WebParam(name = "nameBranch")String nameBranch){
+	public String createBranch(@WebParam(name = "nameBranch") String nameBranch) {
 		String branch = null;
 		if (hidra.equals(null)) {
 			System.err.println("Repositorio nao inicializado");
@@ -322,7 +364,8 @@ public class HidraControl implements IHidra {
 
 			List<org.eclipse.jgit.lib.Ref> call = null;
 			try {
-				call = new Git(hidra.getGit().getRepository()).branchList().call();
+				call = new Git(hidra.getGit().getRepository()).branchList()
+						.call();
 			} catch (GitAPIException e) {
 
 				e.printStackTrace();
@@ -333,7 +376,7 @@ public class HidraControl implements IHidra {
 
 			}
 			hidra.getGit().getRepository().close();
-			
+
 			return branch;
 		}
 		return branch;
