@@ -41,5 +41,19 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>3.6.2.201501210735-r</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>0.1.51</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.googlecode.javaewah</groupId>
+			<artifactId>JavaEWAH</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+
 	</dependencies>
 </project>
